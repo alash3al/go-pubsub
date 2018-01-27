@@ -15,17 +15,17 @@ type Subscriber struct {
 	topics    map[string]bool
 }
 
-// GetID: return the subscriber id
+// return the subscriber id
 func (s *Subscriber) GetID() string {
 	return s.id
 }
 
-// GetCreatedAt: return `time.Time` of the creation time
+// return `time.Time` of the creation time
 func (s *Subscriber) GetCreatedAt() int64 {
 	return s.createdAt
 }
 
-// GetTopics: return slice of subscriber topics
+// return slice of subscriber topics
 func (s *Subscriber) GetTopics() []string {
 	topics := []string{}
 	for topic, _ := range s.topics {
@@ -34,12 +34,12 @@ func (s *Subscriber) GetTopics() []string {
 	return topics
 }
 
-// Listen: returns a channel of *Message to listen on
+// returns a channel of *Message to listen on
 func (s *Subscriber) GetMessages() <-chan *Message {
 	return s.messages
 }
 
-// Signal: sends a message to subscriber
+// sends a message to subscriber
 func (s *Subscriber) Signal(m *Message) *Subscriber {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
@@ -49,7 +49,7 @@ func (s *Subscriber) Signal(m *Message) *Subscriber {
 	return s
 }
 
-// Destroy: close the underlying channels/resources
+// close the underlying channels/resources
 func (s *Subscriber) destroy() {
 	s.lock.Lock()
 	defer s.lock.Unlock()

@@ -14,7 +14,7 @@ type Broker struct {
 	tlock       *sync.RWMutex
 }
 
-// NewBroker: create new broker
+// create new broker
 func NewBroker() *Broker {
 	return &Broker{
 		subscribers: Subscribers{},
@@ -24,7 +24,7 @@ func NewBroker() *Broker {
 	}
 }
 
-// Attach: Create a new subscriber and register it into our main broker
+// Create a new subscriber and register it into our main broker
 func (b *Broker) Attach() (*Subscriber, error) {
 	b.slock.Lock()
 	defer b.slock.Unlock()
@@ -44,7 +44,7 @@ func (b *Broker) Attach() (*Subscriber, error) {
 	return s, nil
 }
 
-// Subscribe: subscribes the speicifed subscriber "s" to the specified list of topic(s)
+// subscribes the speicifed subscriber "s" to the specified list of topic(s)
 func (b *Broker) Subscribe(s *Subscriber, topics ...string) {
 	b.tlock.Lock()
 	defer b.tlock.Unlock()
@@ -57,7 +57,7 @@ func (b *Broker) Subscribe(s *Subscriber, topics ...string) {
 	}
 }
 
-// Unsubscribe: unsubscribes the specified subscriber from the specified topic(s)
+// unsubscribes the specified subscriber from the specified topic(s)
 func (b *Broker) Unsubscribe(s *Subscriber, topics ...string) {
 	b.tlock.Lock()
 	defer b.tlock.Unlock()
@@ -70,7 +70,7 @@ func (b *Broker) Unsubscribe(s *Subscriber, topics ...string) {
 	}
 }
 
-// Detach: remove the specified subscriber from the broker
+// remove the specified subscriber from the broker
 func (b *Broker) Detach(s *Subscriber) {
 	b.slock.Lock()
 	defer b.slock.Unlock()
@@ -78,7 +78,7 @@ func (b *Broker) Detach(s *Subscriber) {
 	b.Unsubscribe(s, s.GetTopics()...)
 }
 
-// Broadcast: broadcast the specified payload to all the topic(s) subscribers
+// broadcast the specified payload to all the topic(s) subscribers
 func (b *Broker) Broadcast(payload interface{}, topics ...string) {
 	for _, topic := range topics {
 		for _, s := range b.topics[topic] {
@@ -94,7 +94,7 @@ func (b *Broker) Broadcast(payload interface{}, topics ...string) {
 	}
 }
 
-// Subscribers: get the subscribers count
+// get the subscribers count
 func (b *Broker) Subscribers(topic string) int {
 	b.tlock.RLock()
 	defer b.tlock.RUnlock()
