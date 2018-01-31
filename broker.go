@@ -9,18 +9,18 @@ import (
 
 type Broker struct {
 	subscribers Subscribers
-	slock       *sync.RWMutex
+	slock       sync.RWMutex
 	topics      map[string]Subscribers
-	tlock       *sync.RWMutex
+	tlock       sync.RWMutex
 }
 
 // create new broker
 func NewBroker() *Broker {
 	return &Broker{
 		subscribers: Subscribers{},
-		slock:       &sync.RWMutex{},
+		slock:       sync.RWMutex{},
 		topics:      map[string]Subscribers{},
-		tlock:       &sync.RWMutex{},
+		tlock:       sync.RWMutex{},
 	}
 }
 
