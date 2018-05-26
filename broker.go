@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// Broker the brocker related meta data
 type Broker struct {
 	subscribers Subscribers
 	slock       sync.RWMutex
@@ -14,7 +15,7 @@ type Broker struct {
 	tlock       sync.RWMutex
 }
 
-// create new broker
+// NewBroker create new broker
 func NewBroker() *Broker {
 	return &Broker{
 		subscribers: Subscribers{},
@@ -24,7 +25,7 @@ func NewBroker() *Broker {
 	}
 }
 
-// Create a new subscriber and register it into our main broker
+// Attach Create a new subscriber and register it into our main broker
 func (b *Broker) Attach() (*Subscriber, error) {
 	b.slock.Lock()
 	defer b.slock.Unlock()
@@ -44,7 +45,7 @@ func (b *Broker) Attach() (*Subscriber, error) {
 	return s, nil
 }
 
-// subscribes the speicifed subscriber "s" to the specified list of topic(s)
+// Subscribe subscribes the speicifed subscriber "s" to the specified list of topic(s)
 func (b *Broker) Subscribe(s *Subscriber, topics ...string) {
 	b.tlock.Lock()
 	defer b.tlock.Unlock()
@@ -57,7 +58,7 @@ func (b *Broker) Subscribe(s *Subscriber, topics ...string) {
 	}
 }
 
-// unsubscribes the specified subscriber from the specified topic(s)
+// Unsubscribe unsubscribes the specified subscriber from the specified topic(s)
 func (b *Broker) Unsubscribe(s *Subscriber, topics ...string) {
 	b.tlock.Lock()
 	defer b.tlock.Unlock()
@@ -70,7 +71,7 @@ func (b *Broker) Unsubscribe(s *Subscriber, topics ...string) {
 	}
 }
 
-// remove the specified subscriber from the broker
+// Detach remove the specified subscriber from the broker
 func (b *Broker) Detach(s *Subscriber) {
 	b.slock.Lock()
 	defer b.slock.Unlock()
@@ -78,7 +79,7 @@ func (b *Broker) Detach(s *Subscriber) {
 	b.Unsubscribe(s, s.GetTopics()...)
 }
 
-// broadcast the specified payload to all the topic(s) subscribers
+// Broadcast broadcast the specified payload to all the topic(s) subscribers
 func (b *Broker) Broadcast(payload interface{}, topics ...string) {
 	for _, topic := range topics {
 		for _, s := range b.topics[topic] {
@@ -94,10 +95,9 @@ func (b *Broker) Broadcast(payload interface{}, topics ...string) {
 	}
 }
 
-// get the subscribers count
+// Subscribers get the subscribers count
 func (b *Broker) Subscribers(topic string) int {
 	b.tlock.RLock()
 	defer b.tlock.RUnlock()
 	return len(b.topics[topic])
-	return 0
 }

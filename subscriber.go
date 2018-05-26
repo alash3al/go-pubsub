@@ -4,8 +4,10 @@ import (
 	"sync"
 )
 
+// Subscribers ...
 type Subscribers map[string]*Subscriber
 
+// Subscriber ...
 type Subscriber struct {
 	id        string
 	messages  chan *Message
@@ -15,31 +17,31 @@ type Subscriber struct {
 	topics    map[string]bool
 }
 
-// return the subscriber id
+// GetID return the subscriber id
 func (s *Subscriber) GetID() string {
 	return s.id
 }
 
-// return `time.Time` of the creation time
+// GetCreatedAt return `time.Time` of the creation time
 func (s *Subscriber) GetCreatedAt() int64 {
 	return s.createdAt
 }
 
-// return slice of subscriber topics
+// GetTopics return slice of subscriber topics
 func (s *Subscriber) GetTopics() []string {
 	topics := []string{}
-	for topic, _ := range s.topics {
+	for topic := range s.topics {
 		topics = append(topics, topic)
 	}
 	return topics
 }
 
-// returns a channel of *Message to listen on
+// GetMessages returns a channel of *Message to listen on
 func (s *Subscriber) GetMessages() <-chan *Message {
 	return s.messages
 }
 
-// sends a message to subscriber
+// Signal sends a message to subscriber
 func (s *Subscriber) Signal(m *Message) *Subscriber {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
