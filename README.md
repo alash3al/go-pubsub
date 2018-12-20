@@ -13,3 +13,8 @@ https://camo.githubusercontent.com/915b7be44ada53c290eb157634330494ebe3e30a/6874
 
 # License
 I'm using MIT license.
+
+# Known Users
+
+- [Wsify](https://github.com/alash3al/wsify)
+- [RedixDB](https://alash3al.github.io/redixdb)

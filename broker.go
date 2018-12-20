@@ -82,6 +82,9 @@ func (b *Broker) Detach(s *Subscriber) {
 // Broadcast broadcast the specified payload to all the topic(s) subscribers
 func (b *Broker) Broadcast(payload interface{}, topics ...string) {
 	for _, topic := range topics {
+		if b.Subscribers(topic) < 1 {
+			continue
+		}
 		for _, s := range b.topics[topic] {
 			m := &Message{
 				topic:     topic,
