@@ -104,3 +104,14 @@ func (b *Broker) Subscribers(topic string) int {
 	defer b.tlock.RUnlock()
 	return len(b.topics[topic])
 }
+
+// GetTopics returns a slice of topics
+func (b *Broker) GetTopics() []string {
+	b.tlock.RLock()
+	defer b.tlock.RUnlock()
+	topics := []string{}
+	for topic := range b.topics {
+		topics = append(topics, topic)
+	}
+	return topics
+}
