@@ -81,6 +81,9 @@ func (b *Broker) Detach(s *Subscriber) {
 
 // Broadcast broadcast the specified payload to all the topic(s) subscribers
 func (b *Broker) Broadcast(payload interface{}, topics ...string) {
+	b.tlock.RLock()
+	defer b.tlock.RUnlock()
+
 	for _, topic := range topics {
 		if b.Subscribers(topic) < 1 {
 			continue
