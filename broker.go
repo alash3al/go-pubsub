@@ -77,7 +77,7 @@ func (b *Broker) Detach(s *Subscriber) {
 	defer b.slock.Unlock()
 	s.destroy()
 	b.Unsubscribe(s, s.GetTopics()...)
-	delete(b.subscribers[s.id])
+	delete(b.subscribers, s.id)
 }
 
 // Broadcast broadcast the specified payload to all the topic(s) subscribers
