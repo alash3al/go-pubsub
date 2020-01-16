@@ -1,1 +1,1 @@
-module github.com/alash3al/go-pubsub
+module github.com/nitrado/go-pubsub
