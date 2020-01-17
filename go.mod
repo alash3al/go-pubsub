@@ -1,3 +1,1 @@
-module github.com/nitrado/go-pubsub
-
-go 1.12
+module github.com/alash3al/go-pubsub
