@@ -1,94 +1,93 @@
 package pubsub
 
 import (
-	"crypto/rand"
-	"encoding/hex"
+	"fmt"
+	"strings"
 	"sync"
 	"time"
 )
 
-// Broker the brocker related meta data
+// Broker The broker related meta data
 type Broker struct {
 	subscribers Subscribers
-	slock       sync.RWMutex
-	topics      map[string]Subscribers
-	tlock       sync.RWMutex
+	sLock       sync.RWMutex
+
+	topics map[string]Subscribers
+	tLock  sync.RWMutex
 }
 
-// NewBroker create new broker
+// NewBroker Create new broker
 func NewBroker() *Broker {
 	return &Broker{
 		subscribers: Subscribers{},
-		slock:       sync.RWMutex{},
+		sLock:       sync.RWMutex{},
 		topics:      map[string]Subscribers{},
-		tlock:       sync.RWMutex{},
+		tLock:       sync.RWMutex{},
 	}
 }
 
 // Attach Create a new subscriber and register it into our main broker
 func (b *Broker) Attach() (*Subscriber, error) {
-	b.slock.Lock()
-	defer b.slock.Unlock()
-	id := make([]byte, 50)
-	if _, err := rand.Read(id); err != nil {
+	s, err := NewSubscriber()
+	fmt.Printf("Attach subscriber %v - topics: %v\n", s.GetID(), strings.Join(s.GetTopics(), ", "))
+
+	if err != nil {
 		return nil, err
 	}
-	s := &Subscriber{
-		id:        hex.EncodeToString(id),
-		messages:  make(chan *Message),
-		createdAt: time.Now().UnixNano(),
-		destroyed: false,
-		lock:      &sync.RWMutex{},
-		topics:    map[string]bool{},
-	}
-	b.subscribers[s.id] = s
+
+	b.sLock.Lock()
+	b.subscribers[s.GetID()] = s
+	b.sLock.Unlock()
+
 	return s, nil
 }
 
-// Subscribe subscribes the speicifed subscriber "s" to the specified list of topic(s)
+// Subscribe subscribes the specified subscriber "s" to the specified list of topic(s)
 func (b *Broker) Subscribe(s *Subscriber, topics ...string) {
-	b.tlock.Lock()
-	defer b.tlock.Unlock()
+	b.tLock.Lock()
+	defer b.tLock.Unlock()
+
 	for _, topic := range topics {
 		if nil == b.topics[topic] {
 			b.topics[topic] = Subscribers{}
 		}
-		s.topics[topic] = true
+		s.AddTopic(topic)
 		b.topics[topic][s.id] = s
 	}
+
+	fmt.Printf("Subscribed subscriber %v to topics: %v\n", s.GetID(), strings.Join(s.GetTopics(), ", "))
 }
 
-// Unsubscribe unsubscribes the specified subscriber from the specified topic(s)
+// Unsubscribe Unsubscribe the specified subscriber from the specified topic(s)
 func (b *Broker) Unsubscribe(s *Subscriber, topics ...string) {
-	b.tlock.Lock()
-	defer b.tlock.Unlock()
 	for _, topic := range topics {
+		b.tLock.Lock()
 		if nil == b.topics[topic] {
 			continue
 		}
 		delete(b.topics[topic], s.id)
-		delete(s.topics, topic)
+		b.tLock.Unlock()
+		s.RemoveTopic(topic)
 	}
 }
 
 // Detach remove the specified subscriber from the broker
 func (b *Broker) Detach(s *Subscriber) {
-	b.slock.Lock()
-	defer b.slock.Unlock()
+	fmt.Printf("Detach subscriber %v - topics: %v\n", s.GetID(), strings.Join(s.GetTopics(), ", "))
 	s.destroy()
+	b.sLock.Lock()
 	b.Unsubscribe(s, s.GetTopics()...)
 	delete(b.subscribers, s.id)
+	defer b.sLock.Unlock()
 }
 
 // Broadcast broadcast the specified payload to all the topic(s) subscribers
 func (b *Broker) Broadcast(payload interface{}, topics ...string) {
-	b.tlock.RLock()
-	defer b.tlock.RUnlock()
-
 	for _, topic := range topics {
 		if b.Subscribers(topic) < 1 {
 			continue
 		}
+		b.tLock.RLock()
 		for _, s := range b.topics[topic] {
 			m := &Message{
 				topic:     topic,
@@ -99,23 +98,27 @@ func (b *Broker) Broadcast(payload interface{}, topics ...string) {
 				s.Signal(m)
 			})(s)
 		}
+		b.tLock.RUnlock()
 	}
 }
 
-// Subscribers get the subscribers count
+// Subscribers Get the subscribers count
 func (b *Broker) Subscribers(topic string) int {
-	b.tlock.RLock()
-	defer b.tlock.RUnlock()
+	b.tLock.RLock()
+	defer b.tLock.RUnlock()
 	return len(b.topics[topic])
 }
 
-// GetTopics returns a slice of topics
+// GetTopics Returns a slice of topics
 func (b *Broker) GetTopics() []string {
-	b.tlock.RLock()
-	defer b.tlock.RUnlock()
+	b.tLock.RLock()
+	brokerTopics := b.topics
+	b.tLock.RUnlock()
+
 	topics := []string{}
-	for topic := range b.topics {
+	for topic := range brokerTopics {
 		topics = append(topics, topic)
 	}
+
 	return topics
 }
