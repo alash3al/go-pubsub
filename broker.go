@@ -1,8 +1,6 @@
 package pubsub
 
 import (
-	"fmt"
-	"strings"
 	"sync"
 	"time"
 )
