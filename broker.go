@@ -29,7 +29,6 @@ func NewBroker() *Broker {
 // Attach Create a new subscriber and register it into our main broker
 func (b *Broker) Attach() (*Subscriber, error) {
 	s, err := NewSubscriber()
-	fmt.Printf("Attach subscriber %v - topics: %v\n", s.GetID(), strings.Join(s.GetTopics(), ", "))
 
 	if err != nil {
 		return nil, err
@@ -55,7 +54,6 @@ func (b *Broker) Subscribe(s *Subscriber, topics ...string) {
 		b.topics[topic][s.id] = s
 	}
 
-	fmt.Printf("Subscribed subscriber %v to topics: %v\n", s.GetID(), strings.Join(s.GetTopics(), ", "))
 }
 
 // Unsubscribe Unsubscribe the specified subscriber from the specified topic(s)
@@ -73,7 +71,6 @@ func (b *Broker) Unsubscribe(s *Subscriber, topics ...string) {
 
 // Detach remove the specified subscriber from the broker
 func (b *Broker) Detach(s *Subscriber) {
-	fmt.Printf("Detach subscriber %v - topics: %v\n", s.GetID(), strings.Join(s.GetTopics(), ", "))
 	s.destroy()
 	b.sLock.Lock()
 	b.Unsubscribe(s, s.GetTopics()...)
