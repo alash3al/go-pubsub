@@ -17,4 +17,4 @@ I'm using MIT license.
 # Known Users
 
 - [Wsify](https://github.com/alash3al/wsify)
-- [RedixDB](https://alash3al.github.io/redixdb)
+- [RedixDB](https://alash3al.github.io/redix)
